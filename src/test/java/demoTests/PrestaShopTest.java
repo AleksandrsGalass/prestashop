@@ -34,6 +34,11 @@ public class PrestaShopTest {
     CheckOutPaymentPage checkOutPaymentPage = new CheckOutPaymentPage();
     OrderConfirmationPage orderConfirmationPage = new OrderConfirmationPage();
 
+    /*
+        1) Selenide работает из коробки, у него есть отдельный класс с конфигурацией Configuration, и по дефолту будет Chrome,
+            так, что можно не создавать отдельный драйвер. Так же если удалить этот сетап то тоже будет работать кроме maximize.
+        2) Сетап лучше выносить в отдельный класс, и тестовые классы уже наследовать от него, для чистоты тестов
+    */
     @BeforeSuite
     public void setup() {
         final DesiredCapabilities capabilities = new DesiredCapabilities();
@@ -56,8 +61,18 @@ public class PrestaShopTest {
     void smokeTest() {
         String firstName = "FirstName";
         String lastName = "LastName";
-        String emailNameBeforeAt  = RandomString.make(5);
+        String emailNameBeforeAt = RandomString.make(5);
 
+        /*
+            1) Ты используешь PageObject паттерн, тобишь по факту используешь принципы ООП, но у тебя все параметры доступны и из теста.
+                Нарушается принцип инкапсуляции, тебе надо было все параметры(элементы которые находишь) сделать приватными
+                и заполнять их уже через методы. Например, был бы у тебя в тесте метод register() в который ты передавал бы объект,
+                например, NewClient в котором содержались бы все данные, тогда человек, который не знает как у тебя устроено нутро,
+                мог бы спокойно писать новые тесты вызвав register() в котором происходит заполнение,
+                тест сразу становится лаконичным и логика спрятана в PageObject.
+            2) Так же у тебя все действия идут одним полотном, трудно понять где начинается одно действие и заканчивается другое,
+               как минимум можно было разделить комментариями для каждого пункта из задания
+        */
         open(HomePage.URL);
         homePage.isLoaded();
         homePage.userIsSignedOut();
@@ -78,8 +93,21 @@ public class PrestaShopTest {
         homePage.userIsSignedIn(firstName, lastName);
         homePage.accessoriesButton.click();
         accessoriesPage.isLoaded();
+
+
+        /*
+           1) Слайдер можно было сделать более гибким, на данный момент если начальные значения поменяются на странице,
+              сдвиг по пикселям будет выдавать совсем уже другой результат.
+           2) По факту в AccessoriesPage должен быть один метод для взаимодействия со слайдером, а не делать это в самом тесте.
+              Тест всегда должен быть читабельным и сложная логика должна быть вынесена, в этом случае в AccessoriesPage,
+              что бы ты из теста вызвал один метод и передал бы начальное и конечное значение.
+        */
         accessoriesPage.priceSliderFromLeft.scrollTo();
         accessoriesPage.moveLeftSliderForwardFor(25);
+        /*
+           1) Это можно было спрятать в метод, что бы человек который будет использовать этот тест не ломал голову, а что значат эти кодировки.
+           2) Надо было написать метод checkPriceRangeLabel(min, max), в который передавались бы значения min, max и внутри уже была бы проверка
+        */
         accessoriesPage.priceRangeLabel.shouldHave(text("\u20AC18.00 - \u20AC42.00"));
         accessoriesPage.priceSliderFromRight.scrollTo();
         accessoriesPage.moveRightSliderBackFor(150);
@@ -107,6 +135,8 @@ public class PrestaShopTest {
         shoppingCartPage.isLoaded();
         shoppingCartPage.totalLabel.shouldHave(text("\u20AC90.72"));
         shoppingCartPage.proceedToCheckOutButton.click();
+
+        // Тут тоже можно было в CheckOutAddressPage сделать метод в который бы передавался бы объект с адресом
         checkOutAddressPage.isLoaded();
         checkOutAddressPage.countryDropDown.selectOption("France");
         checkOutAddressPage.addressInput.setValue("address");

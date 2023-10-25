@@ -11,7 +11,7 @@ import static com.codeborne.selenide.Selenide.$$;
 
 public class CreateAccountPage {
 
-    public final SelenideElement femaleGenderRadioButton = $("#field-id_gender-2");
+    public final SelenideElement femaleGenderRadioButton = $("#field-id_gender-2"); // не используется переменная
     public final SelenideElement maleGenderRadioButton = $("#field-id_gender-1");
     public final SelenideElement firsNameInput = $("#field-firstname");
     public final SelenideElement lastNameInput = $("#field-lastname");

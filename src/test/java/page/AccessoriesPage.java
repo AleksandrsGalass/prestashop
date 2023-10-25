@@ -17,6 +17,9 @@ import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 public class AccessoriesPage {
 
     public final SelenideElement filterBlackCheckBox = $("a[href$=\"Color-Black\"]");
+
+    // Странные локаторы, можно было использовать ui-slider-handle класс для нахождения,
+    // по этим стилям можно что угодно найти при изменениях на странице, а потом ломать голову почему тест не работает
     public final SelenideElement priceSliderFromLeft = $("[style=\"left: 0%;\"]");
     public final SelenideElement priceSliderFromRight = $("[style=\"left: 100%;\"]");
     public final SelenideElement priceRangeLabel = $("p[id^=\"facet_label\"]");
@@ -31,6 +34,9 @@ public class AccessoriesPage {
 
     }
 
+    // Два почти одинаковых метода для сдвига слайдера, а это дублирование кода.
+    // Ты используешь селениум Actions, можно было использовать обертку селенида
+    // actions().dragAndDropBy(element, xOffset, yOffset).perform();
     public void moveLeftSliderForwardFor(int numberOfPixels) {
         Actions actions = new Actions(getWebDriver());
         actions.dragAndDropBy(priceSliderFromLeft, numberOfPixels, 0).build().perform();
